@@ -24,10 +24,8 @@ func main() {
 	var results []int
 	// Print the lines or use them as needed
 	for _, line := range lines {
-		var firstDigit rune
-		var lastDigit rune
-		firstDigit = findFirstDigit(line)
-		lastDigit = findFirstDigit(reverse(line))
+		firstDigit := findFirstDigit(line)
+		lastDigit := findFirstDigit(reverse(line))
 
 		// if firstDigit or lastDigit are empty, skip this line
 		if firstDigit == 0 || lastDigit == 0 {
