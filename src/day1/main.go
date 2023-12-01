@@ -9,23 +9,6 @@ import (
 	"unicode"
 )
 
-func readLinesFromFile(fileSystem fs.FS, filePath string) ([]string, error) {
-	// Read the entire file using fs.ReadFile
-	fileContent, err := fs.ReadFile(fileSystem, filePath)
-	if err != nil {
-		return nil, err
-	}
-
-	// Convert the byte slice to a string and split into lines
-	lines := splitLines(string(fileContent))
-
-	return lines, nil
-}
-
-func splitLines(s string) []string {
-	return strings.Split(s, "\n")
-}
-
 func main() {
 	// Use os.DirFS to create an fs.FS from the current directory
 	fileSystem := os.DirFS(".")
@@ -74,6 +57,23 @@ func main() {
 		sum += result
 	}
 	fmt.Println(sum)
+}
+
+func readLinesFromFile(fileSystem fs.FS, filePath string) ([]string, error) {
+	// Read the entire file using fs.ReadFile
+	fileContent, err := fs.ReadFile(fileSystem, filePath)
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert the byte slice to a string and split into lines
+	lines := splitLines(string(fileContent))
+
+	return lines, nil
+}
+
+func splitLines(s string) []string {
+	return strings.Split(s, "\n")
 }
 
 func reverse(s string) string {
