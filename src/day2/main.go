@@ -17,11 +17,11 @@ func main() {
 		fmt.Println("Error reading file:", err)
 		return
 	}
-	max_possible_cubes := map[string]int{
-		"red":   12,
-		"green": 13,
-		"blue":  14,
-	}
+	// max_possible_cubes := map[string]int{
+	// 	"red":   12,
+	// 	"green": 13,
+	// 	"blue":  14,
+	// }
 
 	// max_actual_cubes := map[string]int{
 	// 	"red":   0,
@@ -29,17 +29,20 @@ func main() {
 	// 	"blue":  0,
 	// }
 
-	// create an empty set to push the legit game_ids to
-	legit_game_ids := make(map[int]bool)
+	games := map[int]map[string]int{}
 
 	for _, line := range lines {
 		if line == "" {
 			continue
 		}
-		failed := false
 		var game_id int
 		splitLine := strings.Split(line, ":")
 		fmt.Sscanf(splitLine[0], "Game %d", &game_id)
+		min_possible_cubes := map[string]int{
+			"red":   0,
+			"green": 0,
+			"blue":  0,
+		}
 		samples := strings.Split(splitLine[1], ";")
 		for _, sample := range samples {
 			if sample == "" {
@@ -54,24 +57,20 @@ func main() {
 				var cubes int
 				fmt.Sscanf(sample_color, "%d %s", &cubes, &color)
 				fmt.Println("Game", game_id, "has", cubes, color, "cubes")
-				// check if the number of cubes is greater than the max possible
-				if cubes > max_possible_cubes[color] {
-					fmt.Println("Game", game_id, "has", cubes, color, "cubes, which is more than the max possible")
-					failed = true
-					continue
+
+				if cubes > min_possible_cubes[color] {
+					min_possible_cubes[color] = cubes
 				}
 			}
 		}
-		if failed {
-			continue
-		}
-		legit_game_ids[game_id] = true
+		games[game_id] = min_possible_cubes
 	}
-	fmt.Println("Legit game ids:", legit_game_ids)
-	// sum legit game ids together
-	var sum int
-	for legit_game_id := range legit_game_ids {
-		sum += legit_game_id
+
+	sum := 0
+	for game_id, min_possible_cubes := range games {
+		power := min_possible_cubes["red"] * min_possible_cubes["green"] * min_possible_cubes["blue"]
+		sum += power
+		fmt.Println("Game", game_id, "has power of", power)
 	}
-	fmt.Println("Sum of legit game ids:", sum)
+	fmt.Println("Total power is", sum)
 }
