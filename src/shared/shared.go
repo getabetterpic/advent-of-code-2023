@@ -3,6 +3,7 @@ package shared
 import (
 	"io/fs"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -19,6 +20,16 @@ func ReadLinesFromFile(filePath string) ([]string, error) {
 	lines := splitLines(string(fileContent))
 
 	return lines, nil
+}
+
+func StringToInt(s string) int {
+	// Convert the string to an int
+	// Use strconv.Atoi to convert the string to an int
+	integer, err := strconv.Atoi(s)
+	if err != nil {
+		panic(err)
+	}
+	return integer
 }
 
 func splitLines(s string) []string {
