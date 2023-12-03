@@ -3,33 +3,24 @@ package main
 import (
 	"advent/day1/src/shared"
 	"fmt"
-	"os"
 	"strings"
 )
 
-func main() {
-	// Use os.DirFS to create an fs.FS from the current directory
-	fileSystem := os.DirFS(".")
+type Game struct {
+	id      int
+	samples Sample
+}
 
-	filePath := "vendor/day2input.txt" // Replace with the path to your file
-	lines, err := shared.ReadLinesFromFile(fileSystem, filePath)
+type Sample map[string]int
+
+func main() {
+	lines, err := shared.ReadLinesFromFile("vendor/day2input.txt")
 	if err != nil {
 		fmt.Println("Error reading file:", err)
 		return
 	}
-	// max_possible_cubes := map[string]int{
-	// 	"red":   12,
-	// 	"green": 13,
-	// 	"blue":  14,
-	// }
 
-	// max_actual_cubes := map[string]int{
-	// 	"red":   0,
-	// 	"green": 0,
-	// 	"blue":  0,
-	// }
-
-	games := map[int]map[string]int{}
+	games := map[int]Game{}
 
 	for _, line := range lines {
 		if line == "" {
@@ -38,10 +29,9 @@ func main() {
 		var game_id int
 		splitLine := strings.Split(line, ":")
 		fmt.Sscanf(splitLine[0], "Game %d", &game_id)
-		min_possible_cubes := map[string]int{
-			"red":   0,
-			"green": 0,
-			"blue":  0,
+		min_possible_cubes := Game{
+			id:      game_id,
+			samples: map[string]int{},
 		}
 		samples := strings.Split(splitLine[1], ";")
 		for _, sample := range samples {
@@ -58,8 +48,8 @@ func main() {
 				fmt.Sscanf(sample_color, "%d %s", &cubes, &color)
 				fmt.Println("Game", game_id, "has", cubes, color, "cubes")
 
-				if cubes > min_possible_cubes[color] {
-					min_possible_cubes[color] = cubes
+				if cubes > min_possible_cubes.samples[color] {
+					min_possible_cubes.samples[color] = cubes
 				}
 			}
 		}
@@ -68,7 +58,7 @@ func main() {
 
 	sum := 0
 	for game_id, min_possible_cubes := range games {
-		power := min_possible_cubes["red"] * min_possible_cubes["green"] * min_possible_cubes["blue"]
+		power := min_possible_cubes.samples["red"] * min_possible_cubes.samples["green"] * min_possible_cubes.samples["blue"]
 		sum += power
 		fmt.Println("Game", game_id, "has power of", power)
 	}

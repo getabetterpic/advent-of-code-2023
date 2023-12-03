@@ -2,10 +2,13 @@ package shared
 
 import (
 	"io/fs"
+	"os"
 	"strings"
 )
 
-func ReadLinesFromFile(fileSystem fs.FS, filePath string) ([]string, error) {
+func ReadLinesFromFile(filePath string) ([]string, error) {
+	// Use os.DirFS to create an fs.FS from the current directory
+	fileSystem := os.DirFS(".")
 	// Read the entire file using fs.ReadFile
 	fileContent, err := fs.ReadFile(fileSystem, filePath)
 	if err != nil {
