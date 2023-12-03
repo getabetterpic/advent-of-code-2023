@@ -4,6 +4,7 @@ import (
 	"advent/day1/src/shared"
 	"fmt"
 	"regexp"
+	"strings"
 )
 
 func splitLine(line string) []string {
@@ -23,7 +24,6 @@ func main() {
 	for _, line := range lines {
 		split := splitLine(line)
 		if len(split) > 0 {
-			fmt.Println(split)
 			matrix = append(matrix, split)
 		}
 	}
@@ -32,44 +32,40 @@ func main() {
 	for rowIndex, row := range matrix {
 		for i := 0; i < len(row); i++ {
 			element := row[i]
-			// if element is a number, check all adjacent cells to see if there is a symbol
-			// if there is, add the number to the sum
 			isADigit := regexp.MustCompile(`[0-9]`)
-			isASymbol := regexp.MustCompile(`[^a-zA-Z0-9\.]+`)
-			if isADigit.MatchString(element) {
-				cellNumber := findWholeNumber(row, i)
+			isAGear := regexp.MustCompile(`\*`)
 
-				width := len(cellNumber) + 2
-
+			if isAGear.MatchString(element) {
+				part_numbers := make([]string, 0)
 				for j := rowIndex - 1; j < rowIndex+2; j++ {
-					added := false
 					if j < 0 || j >= len(matrix) {
 						continue
 					}
-					for k := i - 1; k < i+width-1; k++ {
-						if k < 0 || k >= len(matrix[j]) {
+
+					for cursor := i - 1; cursor < i+2; cursor++ {
+						if cursor < 0 || cursor >= len(matrix[j]) {
 							continue
 						}
-						if isASymbol.MatchString(matrix[j][k]) {
+						if isADigit.MatchString(matrix[j][cursor]) {
+							numandoffset := findWholeNumber(matrix[j], cursor)
+							part_number := numandoffset[:strings.Index(numandoffset, ":")]
+							offset := shared.StringToInt(numandoffset[strings.Index(numandoffset, ":")+1:])
+							part_numbers = append(part_numbers, part_number)
 							if rowIndex == 4 {
-								fmt.Println("rowIndex:", rowIndex, "i:", i, "width:", width)
-								fmt.Println("Symbol:", matrix[j][k])
-								fmt.Println("Number:", cellNumber)
+								fmt.Println("Symbol:", matrix[j][cursor])
 								fmt.Println("Row:", j)
-								fmt.Println("Column:", k)
+								fmt.Println("Column:", cursor)
+								fmt.Println("part_number:", part_number)
 								fmt.Println()
 							}
-							sum += shared.StringToInt(cellNumber)
-							added = true
-							break
+							cursor = cursor + offset + len(part_number)
 						}
 					}
-					if added {
-						break
-					}
 				}
-
-				i += len(cellNumber)
+				if len(part_numbers) == 2 {
+					fmt.Println(part_numbers[0], "*", part_numbers[1], "=", shared.StringToInt(part_numbers[0])*shared.StringToInt(part_numbers[1]))
+					sum += shared.StringToInt(part_numbers[0]) * shared.StringToInt(part_numbers[1])
+				}
 			}
 		}
 	}
@@ -78,14 +74,44 @@ func main() {
 }
 
 func findWholeNumber(line []string, startingIndex int) string {
-	// Use regular expression to walk forward in the line and find all contiguous digits
-	notADigit := regexp.MustCompile(`[^0-9]`)
-	result := line[startingIndex]
-	for i := startingIndex + 1; i < len(line); i++ {
-		if notADigit.MatchString(line[i]) {
-			break
+	// given a line and a starting index, find the rest of the whole number on either side of the starting index
+	// return the whole number as a string
+	isADigit := regexp.MustCompile(`[0-9]`)
+	combined := ""
+	offset := 0
+	whileLoop := true
+	i := startingIndex
+	// look left
+	for whileLoop {
+		if i < 0 {
+			whileLoop = false
+			continue
 		}
-		result += line[i]
+		if isADigit.MatchString(line[i]) {
+			combined = line[i] + combined
+			offset--
+			i--
+		} else {
+			whileLoop = false
+		}
 	}
-	return result
+	// look right
+	whileLoop = true
+	i = startingIndex + 1
+	for whileLoop {
+		if i >= len(line) {
+			whileLoop = false
+			continue
+		}
+		if isADigit.MatchString(line[i]) {
+			combined = combined + line[i]
+			offset++
+			i++
+		} else {
+			whileLoop = false
+		}
+	}
+	offset = offset + 1
+	fmt.Println("offset:", offset)
+	return combined + ":" + fmt.Sprint(offset)
 }
