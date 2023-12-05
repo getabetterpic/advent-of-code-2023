@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	lines, err := shared.ReadLinesFromFile("vendor/day4input-test.txt")
+	lines, err := shared.ReadLinesFromFile("vendor/day4input.txt")
 	if err != nil {
 		panic(err)
 	}
@@ -16,9 +16,8 @@ func main() {
 	// we want to split it into two parts, the first part is the card number, the second part is the numbers on the card
 	// we want to split the second part into two parts, the first part is the list of winning numbers, the second part is the list of numbers we have
 
-	total_points := 0
+	// create an array the size of the number of lines, each starting at 1
 
-	// create an array the size of the number of lines
 	card_counts := make([]int, len(lines)-1)
 	for _, line := range lines {
 		// split the line into two parts
@@ -32,19 +31,18 @@ func main() {
 		card_id, winning_numbers, my_numbers := parseLine(line)
 		winning_numbers_found := find_winning_numbers(winning_numbers, my_numbers)
 		if winning_numbers_found > 0 {
-			// the first winning point is worth 1 point. each subsequent winning point is worth 2x the previous point.
-			// so if we have 1 winning number, we get 1 point. if we have 2 winning numbers, we get 2 points. if we have 3 winning numbers, we get 4 points. if we have 4 winning numbers, we get 8 points.
-			// so we can calculate the number of points we get by doing 2^(winning_numbers_found - 1)
-			points := 1
-			for i := 0; i < winning_numbers_found-1; i++ {
-				points *= 2
+			fmt.Println("Card", card_id, "has", winning_numbers_found, "winning numbers")
+			for i := 1; i <= winning_numbers_found; i++ {
+				card_counts[(card_id-1)+i] += card_counts[card_id-1] + 1
 			}
-			fmt.Print(card_id, " is a winning card with ", winning_numbers_found, " winning numbers. ")
-			fmt.Println("We get", points, "points for this card")
-			total_points += points
 		}
 	}
-	fmt.Println("Total points for all cards:", total_points)
+	// sum the array
+	sum := len(lines) - 1
+	for _, card_count := range card_counts {
+		sum += card_count
+	}
+	fmt.Println("Total scratchcards:", sum)
 }
 
 func find_winning_numbers(winning_numbers []int, my_numbers []int) int {
